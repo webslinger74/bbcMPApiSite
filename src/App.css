@@ -36,3 +36,23 @@
     transform: rotate(360deg);
   }
 }
+
+.mainView {
+  display:flex;
+  flex-direction: row;
+  margin-left:100px;
+  margin-top:5vh;
+}
+
+.right1 {
+  margin-left:100px;
+}
+
+.boldTitle {
+  font-weight: bold;
+}
+
+.name {
+  font-size: 30px;
+  color:royalblue
+}
