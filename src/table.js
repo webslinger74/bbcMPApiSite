@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MDBDataTable, MDBBtn } from 'mdbreact';
-import { useState } from 'react';
 import Axios from 'axios';
-
+import sendJsonDataMockApi  from './utils/SendJsonDataMockApi';
 
 const DatatablePage = (props) => {
 
+    const importData = props.extraData;
 
     const [Image, setImage] = useState([]);
     const [showPic, setShowPic] = useState(false);
@@ -14,10 +14,16 @@ const DatatablePage = (props) => {
     const [staff, setStaff] = useState([]);
     const [name, setName] = useState("");
     const [allIndData, setAllIndData] = useState([]);
-    const importData = props.extraData;
-    console.log(importData, "import data");
-  console.log("working on a git hub branch change")
-  const columns = [
+    const [load, setLoad] = useState(false);
+    const [error, setError] = useState("");
+    const [data, setData] = useState({});
+    const [loadImage, setLoadImage] = useState(false);
+
+    
+
+    useEffect(()=> {
+
+    const columns = [
       {
         label: 'Name',
         field: 'name',
@@ -43,50 +49,45 @@ const DatatablePage = (props) => {
         width: 20
       }
     ]
-
+  
   const rows = importData.map(element => {
           
-
+  
     return {    name:element[0],
                 surname:element[1],
                 party:element[2],
-                select:<MDBBtn onClick={() => getIndividualDetails(element[3], element)} color="blue" size="sm">MP details</MDBBtn>
+                select:<div><MDBBtn  onClick={() => getIndividualDetails(element[3])} color="blue" size="sm"><span data-testid="btnInd">MP details</span></MDBBtn></div>
             }});
-            
   
-
-const data = {columns, rows}
-
-const getIndividualDetails = (elementpassed, fullelement) => {
-  console.log("in the function", elementpassed,  "the full", fullelement[4]);
+    const idea = {columns, rows}
   
+    setData(idea);
+   setLoad(true);
+}, [importData])
+
+const getIndividualDetails = (elementpassed) => {
+    setLoadImage(false);
  
     fetch('http://data.parliament.uk/membersdataplatform/services/images/MemberPhoto/' + elementpassed)
     .then((results) => {
-      console.log(results);
       return results;
 
     }).then(data => {
-      console.log(data.url);
       const mpImageUrl = data.url;
       setImage(mpImageUrl);
-      setShowPic(true);
-      console.log(Image, " the image url in hook state");
-      return (
-          <div>
-            <img src={data.url} />
-          </div>
-        )
+     
+      setTimeout(() => {
+        setLoadImage(true);
+        setShowPic(true);
+      },1000);
+      }).catch(err => {
+        setError(err.message);
       })
 
 Axios.get("http://data.parliament.uk/membersdataplatform/services/mnis/members/query/house=Commons|IsEligible=true|id=" + elementpassed + "/BasicDetails|Constituencies|Committees|Staff")
 .then((data) => {
 
   setAllIndData(data.data.Members.Member);
-  console.log(data.data.Members.Member, "the bloody data is nowhere to be seen");
-  console.log(data.data.Members.Member.Constituencies.Constituency[0], "the const")
-//  console.log(data.data.Members.Member.Committees, "the committees");
-  console.log(data.data.Members.Member.Staffing, "the staff");
 
   if(data.data.Members.Member.Constituencies.Constituency.Name !== undefined){
     setcon(data.data.Members.Member.Constituencies.Constituency.Name)
@@ -104,9 +105,7 @@ Axios.get("http://data.parliament.uk/membersdataplatform/services/mnis/members/q
     ? setcom("No Committees") : setcom(data.data.Members.Member.Committees.Committee[0].Name)
   }
 
-  console.log(data.data.Members.Member.DisplayAs);
     setName(data.data.Members.Member.DisplayAs);
-
     setStaff(data.data.Members.Member.Staffing)
  
      });
@@ -114,17 +113,10 @@ Axios.get("http://data.parliament.uk/membersdataplatform/services/mnis/members/q
 
   }
 
-  const sendJsonDataMockApi = (indData) => {
-    const urlPOST = "http://localhost:3000/mockApi";
-      console.log(indData, "the ind data in function");
-      const dt = { data: { value: indData }};
-      const request = Axios.post(urlPOST, dt);
-      console.log(request, "the failed mock api return")
-  }
-
-
-  return (
-    <div className="mainView">
+  if(load){
+      return (
+        <ul>
+          {error ? <li>{error.message}</li> : <div className="mainView" data-testid="mainView">
     <MDBDataTable
       striped
       bordered
@@ -134,19 +126,38 @@ Axios.get("http://data.parliament.uk/membersdataplatform/services/mnis/members/q
       data={data}
     />
     <div className="right1">
-  { showPic ? <div><div className="boldTitle">MP's - Name:<div></div><div className="name"> {name}</div></div><img src={Image} />
-                                      <div className="boldTitle">Current Constituency:</div><div> {con}</div>
-                                      <div className="boldTitle">Committees:</div><div> {com}</div>
-                                      <div className="boldTitle">Staff:</div><div> {(staff === null) ? "None" : staff}</div>
-                                      <div className="boldTitle">Send JSON data: <button onClick={() => sendJsonDataMockApi(allIndData)}>Send</button></div>
+  { showPic ? <div><div data-testid="boldTitle1" className="boldTitle">MP's - Name:<div></div><div className="name"> {name}</div></div>{loadImage ? 
+                                      <img src={Image} alt={"MP"}/>:<div className="img-height">image loading...</div>}
+                                      <div className="boldTitle" data-testid="titleConstituency">Current Constituency:</div><div> {con}</div>
+                                      <div className="boldTitle" data-testid="titleCommittees">Committees:</div><div> {com}</div>
+                                      <div className="boldTitle" data-testid="titleStaff">Staff:</div><div> {(staff === null) ? "None" : staff}</div>
+                                      <div className="boldTitle" data-testid="titleJson">Send JSON data: <button onClick={() => sendJsonDataMockApi(allIndData)}>Send</button></div>
                                       
                                       </div>
                                       
                : null}
     </div>
 
-</div>
-  );
+</div>}
+        </ul>
+      )
+
+  } else {
+      return (  
+        <div>
+       
+        <MDBDataTable
+        striped
+        bordered
+        scrollY
+        maxHeight="50vh"
+        small
+        data={data}
+      />
+      </div>
+      )
+  }
+  
 }
 
 

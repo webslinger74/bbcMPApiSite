@@ -52,7 +52,34 @@
   font-weight: bold;
 }
 
+.navMyClass {
+  display:flex;
+  flex-direction: row;
+  padding-left: 5vw;
+  padding-right:10vw;
+}
+
+.myNavbutton {
+  margin-right:20px;
+}
+
+.navMyInner {
+  display:flex;
+  flex-direction: row-reverse;
+}
+
 .name {
   font-size: 30px;
   color:royalblue
+}
+
+.img-height {
+  margin-top:50px;
+  font-size:40px;
+  height:175px;
+}
+
+.dataLoadingTitle {
+  margin-left:20vw;
+  color:blue;
 }
