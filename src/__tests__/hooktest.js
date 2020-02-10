@@ -50,20 +50,20 @@ it("App loads Data loading header at render", () => {
     expect(isCurrentPostOnly.textContent).toBe("Data is loading from MP Api...");
 })
 
-/* it("App loads with the navbar component at render", ()=> {
+it("App loads with the navbar component at render", ()=> {
     const { container } = render(<App /> );
     const navbar = getByTestId(container, "navbar");
     expect(navbar.textContent).toBe("UK Parliament - Members' Names Data Platform");
-}) */
+}) 
 
-/* it("should contain the following header text in the document table headers", () => {
+ it("should contain the following header text in the document table headers", () => {
     const mydata = [["steven", "webster", "labour", 40]];
     const  { getByText } = render(<Table extraData={mydata} />)
     expect(getByText('Name')).toBeInTheDocument();
     expect(getByText('Surname')).toBeInTheDocument();
     expect(getByText('Party')).toBeInTheDocument();
     expect(getByText('Select')).toBeInTheDocument();
-})  */
+})      */
 
 jest.mock('axios');
 
